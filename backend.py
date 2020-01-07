@@ -22,9 +22,9 @@ def hello_world():
 			if github_weighting > 0:
 				use_github = True
 			VisualCode(project_name, use_github, github_weighting)
-	   	else:
-	   		return "You tried to trick me"
-	   	return redirect("submission")
+		else:
+			return "You tried to trick me"
+		return redirect("submission")
 	return render_template("HomePage.html")
 
 @app.route('/submission')

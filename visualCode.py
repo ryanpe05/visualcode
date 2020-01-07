@@ -5,10 +5,10 @@ import sys
 import shutil
 import uuid
 import networkx as nx
-from whoosh.fields import *
-from whoosh.query import *
-from whoosh.index import create_in, open_dir
-from whoosh.qparser import QueryParser
+# from whoosh.fields import *
+# from whoosh.query import *
+# from whoosh.index import create_in, open_dir
+# from whoosh.qparser import QueryParser
 
 def main():
     pass
@@ -63,19 +63,19 @@ class VisualCode():
         cache_size = 0
         self.file_count = 0
         commit_time = True
-        self.schema = Schema(title=TEXT(stored=True), path=ID(stored=True), content=TEXT(stored=True))
-        self.instance_uuid = str(uuid.uuid1())
-        if not os.path.exists(self.instance_uuid):
-            os.mkdir(self.instance_uuid)
-        else:
-            self.instance_uuid = uuid.uuid1()
-            if not os.path.exists(self.instance_uuid):
-                os.mkdir(self.instance_uuid)
-            else:
-                print("Couldn't make a unique UUID")
-                raise NameError
-        self.ix = create_in(self.instance_uuid, self.schema)
-        self.writer = self.ix.writer()
+        # self.schema = Schema(title=TEXT(stored=True), path=ID(stored=True), content=TEXT(stored=True))
+        # self.instance_uuid = str(uuid.uuid1())
+        # if not os.path.exists(self.instance_uuid):
+        #     os.mkdir(self.instance_uuid)
+        # else:
+        #     self.instance_uuid = uuid.uuid1()
+        #     if not os.path.exists(self.instance_uuid):
+        #         os.mkdir(self.instance_uuid)
+        #     else:
+        #         print("Couldn't make a unique UUID")
+        #         raise NameError
+        # self.ix = create_in(self.instance_uuid, self.schema)
+        # self.writer = self.ix.writer()
         for file in self.file_list:
             if ".py" in file:
                 cache_size += os.path.getsize(file)
@@ -85,13 +85,15 @@ class VisualCode():
                     last_defined = None
                     # limit the whoosh cache to 1 GB
                     if cache_size < 10**9:
-                        mytitle = file.replace(self.project_dir, '')
-                        self.writer.add_document(title=mytitle.decode('utf-8', 'ignore'), path=file.decode('utf-8', 'ignore'), content=content.decode('utf-8', 'ignore'))
+                        # mytitle = file.replace(self.project_dir, '')
+                        # self.writer.add_document(title=mytitle.decode('utf-8', 'ignore'), path=file.decode('utf-8', 'ignore'), content=content.decode('utf-8', 'ignore'))
                         self.file_count += 1
-                    elif commit_time:
-                        self.writer.commit()
-                        commit_time = False
-                        print("Closed writer")
+                    else:
+                        print("This many files fit in cache: {}".format(self.file_count))
+                    # elif commit_time:
+                        # self.writer.commit()
+                        # commit_time = False
+                        # print("Closed writer")
                     file = file.replace(self.project_dir, '')
                     self.file_network.add_node(file)
                     self.unweighted_network.add_node(file)
@@ -141,10 +143,10 @@ class VisualCode():
                                                 )
                             except:
                                 pass
-        if commit_time:
-            self.writer.commit()
-            commit_time = False
-            print("Closed writer")
+        # if commit_time:
+        #     self.writer.commit()
+        #     commit_time = False
+        #     print("Closed writer")
         for ind_class in self.class_list:
             for parent in self.class_list[ind_class]["inherits_from"]:
                 if parent in self.class_list:
@@ -158,49 +160,50 @@ class VisualCode():
 
     def findUses(self):
         # first use the cache
-        ix = open_dir(self.instance_uuid)
-        with ix.searcher() as searcher:
-            for ind_class in self.class_list:
-                writer = ix.writer()
-                qp = QueryParser("content", schema=ix.schema)
-                q = qp.parse(ind_class.decode('utf-8'))
-                q.normalize()
-                # myquery = Regex("content", r"\b" + ind_class + r"\b")
-                results = searcher.search(q, limit=None)
-                results.fragmenter.charlimit = None
-                for i in range(results.scored_length()):
-                    file = results[i]
-                    if not file:
-                        continue
-                    # replicate this in searchFile. Don't append used_in if we are in defined_in
-                    if file.get("title") not in self.class_list[ind_class]["defined_in"]:
-                        print("Searching")
-                        self.searchFile(str(file.get("path")))
-                        writer.delete_by_term("path",file.get("path"))
-                #writer.delete_by_query(myquery)
-                writer.commit()
-            for ind_func in self.func_list:
-                writer = ix.writer()
-                #qp = QueryParser("content", schema=ix.schema, termclass=Regex)
-                #my_regex = r"\b" + ind_func + r"\b"
-                qp = QueryParser("content", schema=ix.schema)
-                q = qp.parse(ind_func.decode('utf-8'))
-                q.normalize()
-                #myquery = Regex("content", r"\b" + ind_func + r"\b")
-                results = searcher.search(q, limit=None)
-                results.fragmenter.charlimit = None
-                for i in range(results.scored_length()):
-                    file = results[i]
-                    if not file:
-                        continue
-                    if file.get("title") not in self.func_list[ind_func]["defined_in"]:
-                        print("Searching")
-                        self.searchFile(str(file.get("path")))
-                        writer.delete_by_term("path",file.get("path"))
-                #writer.delete_by_query(myquery)
-                writer.commit()
+        # ix = open_dir(self.instance_uuid)
+        # with ix.searcher() as searcher:
+        #     for ind_class in self.class_list:
+        #         writer = ix.writer()
+        #         qp = QueryParser("content", schema=ix.schema)
+        #         q = qp.parse(ind_class.decode('utf-8'))
+        #         q.normalize()
+        #         # myquery = Regex("content", r"\b" + ind_class + r"\b")
+        #         results = searcher.search(q, limit=None)
+        #         results.fragmenter.charlimit = None
+        #         for i in range(results.scored_length()):
+        #             file = results[i]
+        #             if not file:
+        #                 continue
+        #             # replicate this in searchFile. Don't append used_in if we are in defined_in
+        #             if file.get("title") not in self.class_list[ind_class]["defined_in"]:
+        #                 print("Searching")
+        #                 self.searchFile(str(file.get("path")))
+        #                 writer.delete_by_term("path",file.get("path"))
+        #         #writer.delete_by_query(myquery)
+        #         writer.commit()
+        #     for ind_func in self.func_list:
+        #         writer = ix.writer()
+        #         #qp = QueryParser("content", schema=ix.schema, termclass=Regex)
+        #         #my_regex = r"\b" + ind_func + r"\b"
+        #         qp = QueryParser("content", schema=ix.schema)
+        #         q = qp.parse(ind_func.decode('utf-8'))
+        #         q.normalize()
+        #         #myquery = Regex("content", r"\b" + ind_func + r"\b")
+        #         results = searcher.search(q, limit=None)
+        #         results.fragmenter.charlimit = None
+        #         for i in range(results.scored_length()):
+        #             file = results[i]
+        #             if not file:
+        #                 continue
+        #             if file.get("title") not in self.func_list[ind_func]["defined_in"]:
+        #                 print("Searching")
+        #                 self.searchFile(str(file.get("path")))
+        #                 writer.delete_by_term("path",file.get("path"))
+        #         #writer.delete_by_query(myquery)
+        #         writer.commit()
         # then search everything we couldn't search before
-        for file in self.file_list[self.file_count+1:]:
+        # for file in self.file_list[self.file_count+1:]:
+        for file in self.file_list:
             if ".py" in file:
                 self.searchFile(file)
         with open("function_list.json", "w+") as func_file:
