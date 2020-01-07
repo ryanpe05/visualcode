@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
+<body>
+  <h1>Enter the url of the github repo you want to examine:</h1>
+  <form style='width:50%' method='post'>
+    <div class="form-group">
+      <label for="github_url">URL:</label>
+      <input name="githubUrl" type="text" class="form-control" id="github_url" value="{{request.form.githubUrl}}">
+      <small class="form-text text-muted">The url obtained from clicking the 'clone or download' button on GitHub</small>
+    </div>
+    <div class="form-group">
+      <label for="github_weighting">GitHub Weighting (0-1):</label>
+      <input name="githubWeighting" type="text" class="form-control" id="github_weighting" value="{{request.form.githubWeighting}}">
+      <small class="form-text text-muted">How heavily you want to weight the frequency of git commits to a file</small>
+    </div>
+    <div class="form-group">
+      <label for="lang_sel">Expected Language:</label>
+      <select name="langSel" class="form-control" id="lang_sel" value="{{request.form.langSel}}">
+        <option>Python</option>
+      </select>
+    </div> 
+    <button type="submit" class="btn btn-primary">Submit</button>
+  </form>
+</body>
+</html>
